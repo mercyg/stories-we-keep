@@ -40,3 +40,7 @@ Main output: a picture storybook made from a family's memory. Every story page s
 ## Boundaries
 
 No AI video, voice cloning, or fabricated family memories. No account system or cross-device sync in this submission version. Public frontend does not make locally saved stories public. Keep original recordings and allow correction rather than silently rewriting what someone said.
+
+## Privacy update
+
+Password-protected local vault and processing consent implemented. Existing plaintext stories migrate atomically only after the user sets a password. HTML/PDF downloads remain unencrypted and are labeled accordingly. Public free speech processing is not end-to-end encrypted; no claim of provider-wide deletion or independent security audit. See README privacy section for technical boundaries and tests.

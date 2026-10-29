@@ -20,6 +20,8 @@ Questions start in English. Use **Question language → አማርኛ** on the ho
 
 There is no separate audio-only download button yet. Download a digital book or keepsake to preserve the original recording alongside the words. A written-only memory has no audio to include. Keep the downloaded HTML file intact to retain its embedded voice and pictures.
 
+Downloaded files are not encrypted or password-protected; share and store them carefully.
+
 Pictures currently come from your own uploads; the app does not generate them automatically. Saving a PDF uses your browser’s print dialog: choose **Save as PDF** as the destination.
 
 ## Create a picture storybook (no paid service)
@@ -32,7 +34,7 @@ Edit the cover, add a dedication, then select each page to add a photo/illustrat
 
 The speech service is running in the free Hugging Face ZeroGPU Space below. Automatic translation and AI illustrations remain unconnected. The project has a strict $0 budget; Render is not connected.
 
-Run the export and speech-client checks with `node --test tests/*.test.mjs`.
+Run all checks with `npm ci` then `npm test` (Node.js 22+).
 
 ## Deploy the frontend to Vercel first
 
@@ -80,15 +82,26 @@ Audio processing does not call Addis AI's hosted API. Voice Lab and these downlo
 
 ## What works without a backend
 
-The web interface records audio, accepts uploads, lets you write/edit stories and translations, saves stories with audio to IndexedDB, searches/filters the storybook, opens the written fictional example, and exports an offline HTML keepsake with embedded audio. AI transcription/translation require a connected backend. There are no fake AI responses or automatic fabricated transcripts.
+The web interface records audio, accepts uploads, lets you write/edit stories and translations, saves stories with audio to password-protected IndexedDB, searches/filters the storybook, opens the written fictional example, and exports an offline HTML keepsake with embedded audio. AI transcription/translation require a connected backend. There are no fake AI responses or automatic fabricated transcripts.
 
-## Data and privacy
+## Privacy and security
 
-Stories are stored in this browser's IndexedDB, not synced or backed up to a cloud database. Clearing browser data removes them. **Download keepsake** saves a standalone HTML file containing the original audio and both texts. Keep that file as a backup; it can be opened offline.
+A visible **Privacy & security** section explains these protections and limits in the app.
 
-When you click **Transcribe** in hosted mode, the recording is uploaded to the Hugging Face Space. The Space removes processed uploads in a finally block and cleans expired temporary cache files; its UI/API output may remain in the current session. Do not treat a public demo as a private archival service. With a custom backend, the recording goes to that backend instead. When you click **Translate**, its text is sent to that backend and then to its configured Ollama. The Python backend deletes temporary uploaded files, does not persist audio/transcripts, and does not log successful request bodies. Initial model downloads require internet; once cached, inference can run locally. External fonts are optional presentation assets and fall back to system fonts offline.
+- **Password-protected local storage:** saving a new memory requires creating or unlocking the local vault. AES-256-GCM encrypts the complete saved story: words, names, questions, pictures, book edits, and original audio. Each write uses a fresh random 96-bit IV. The record ID and record count remain visible in storage.
+- **Password handling:** Web Crypto derives a non-extractable key with PBKDF2-HMAC-SHA256 (600,000 iterations, random 128-bit salt). Neither the password nor the key is persisted or sent to a server. Only salt and an authenticated encrypted check are stored. Keys remain in tab memory while unlocked. Use **Lock stories** when finished; reloads begin locked. There is no automatic inactivity lock in this version and no password recovery.
+- **Existing memories:** older plaintext records remain unprotected until the user chooses **Protect stories**. Close other app tabs before setup. Conversion replaces existing records and writes vault metadata in a single IndexedDB transaction; failure rolls everything back. Earlier downloads and platform/browser backups cannot be retroactively encrypted or securely erased. There is no reset button that silently destroys locked stories.
+- **Consent before processing:** each transcription request asks for permission and identifies its destination. Declining leaves the recording on the device and makes no transcription upload. The speaker’s permission is required. Optional custom-backend translation likewise asks before sending text. Hosted audio goes over HTTPS to the configured Hugging Face Space. The service can read it; this processing is not end-to-end encrypted. Our code deletes processed uploads and cleans temporary cache, but does not control all platform logs, backups, or retention. See [Hugging Face’s policy](https://huggingface.co/privacy).
+- **Downloads are unencrypted:** HTML books/keepsakes can include original audio, text, and photos. PDF books include text/photos without playable audio. Anyone with a downloaded file can access its contents. Password protection applies to app storage, not exported files.
+- **Browser hardening:** Vercel headers restrict scripts with CSP, block framing and plugins, prevent referrer transmission and MIME sniffing, and disable camera/location permissions. The printable book’s fixed inline print handler is hash-allowed. Remote custom API addresses must use HTTPS; localhost HTTP remains an optional developer route.
 
-The example is a written fictional memory with an illustrative Amharic translation. Synthetic demo audio was removed from the interface. Real recordings are kept unmodified; Whisper transcribes audio and does not generate a voice.
+This is not a cloud family account system or an independently audited security product. While unlocked, stories are accessible to scripts running under this app’s origin; encryption does not protect against compromised app code, malicious browser extensions, malware, a weak password, or an unlocked device. Stories do not sync to a cloud archive. Browser-data deletion removes them. Keep your password safe and store exported backups securely.
+
+The fictional example and illustrative Amharic translation are not real family data. Speech models transcribe and do not clone the storyteller’s voice.
+
+### Security validation
+
+Run `npm ci` then `npm test`. Checks cover encrypted audio/photo/text round trips, non-extractable keys, fresh IVs, tampering and record substitution, wrong passwords, reload/lock behavior, legacy migration, and rollback after a simulated quota failure. The storage tests use fake-indexeddb; they do not constitute an independent security audit.
 
 ## Optional self-hosting
 

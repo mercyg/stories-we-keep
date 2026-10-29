@@ -21,3 +21,7 @@ dialog{border:0;border-radius:var(--radius-card);padding:var(--space-xl);backgro
 @media(max-width:760px){.book-workspace{grid-template-columns:minmax(0,1fr)}.book-preview{grid-row:1;padding:var(--space-md)}.book-dialog{padding:var(--space-lg);width:calc(100% - 16px)}.book-editor-header{margin-bottom:var(--space-lg)}.book-editor-header h2{font-size:30px}.book-editor-footer,.book-editor-footer>.button-row{align-items:flex-start;flex-direction:column}.book-navigation .button{padding-inline:var(--space-sm);font-size:12px}}
 
 .prompt-language{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--color-ink-2);margin-block:12px}.prompt-language select{font-size:14px;padding:6px 12px;min-height:40px;width:auto}.question-panel h3[lang="am"],.prompt-card h2[lang="am"]{line-height:1.6;letter-spacing:0}
+
+.privacy-check{display:flex!important;align-items:flex-start;gap:12px;font-size:14px;margin-block:20px}.privacy-check input{width:20px;min-height:20px;flex-shrink:0;margin-top:2px}.nav-row{flex-wrap:wrap}#privacyForm>label:not(.privacy-check){display:grid;gap:8px;margin-block:16px}
+
+.privacy-panel{border:1px solid var(--color-rule-2);border-radius:var(--radius-card);padding:var(--space-lg);margin-bottom:var(--space-xl);background:var(--color-card)}.privacy-panel h2{font-size:24px;margin-bottom:12px}.privacy-panel p{max-width:65ch;line-height:1.7}.privacy-panel button{margin-top:12px}#securityDialog h3{font-size:20px;margin-top:24px}#securityDialog p{line-height:1.75}
