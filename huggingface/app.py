@@ -63,7 +63,7 @@ with gr.Blocks(title='Stories We Keep — Speech', delete_cache=(60, 60)) as dem
         'Audio is sent to this Hugging Face Space for processing. Uploaded audio is deleted '
         'after processing; review the transcript before keeping it. Free GPU queues and quotas apply. '
         'Translation and image generation are not provided by this service.')
-    audio = gr.File(label='Recording (up to 5 minutes / 30 MB)', type='filepath', file_types=['audio'])
+    audio = gr.File(label='Recording (up to 5 minutes / 30 MB)', type='filepath', file_types=['.wav', '.mp3', '.m4a', '.mp4', '.webm', '.ogg', '.flac', '.aac', '.opus'])
     language = gr.Dropdown(choices=[('አማርኛ', 'am'), ('English', 'en')], value='am', label='Original language')
     submit = gr.Button('Transcribe recording', variant='primary')
     output = gr.JSON(label='Transcript — please review')
