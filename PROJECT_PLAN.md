@@ -12,19 +12,26 @@ Challenge: https://dev.to/challenges/hacktoberfest-week4-2026-10-26
 Theme: Ghost in the Machine, interpreted as honoring the past through family stories.
 Deadline: October 31, 2026, 11:59 p.m. PDT. Writing quality is weighted most heavily. Explain the open models, their benefits, and real limitations; do not claim hosted inference is offline or that unverified translations are accurate.
 
+## Budget and current priority
+
+Strict $0 budget. Do not enable paid APIs, paid Render compute, or other billable inference. No paid service has been connected. Render has not been connected. The next infrastructure step is verifying free hosting eligibility, rather than assuming a credit or a free tier will run the models.
+
+Main output: a picture storybook made from a family's memory. Every story page supports an image and caption. The first implementation uses family-supplied photos/illustrations. Automatic open-model illustrations are still required for the full envisioned experience but are not connected yet. Video is optional future work.
+
 ## Delivery order
 
-1. Push the complete project to GitHub.
-2. Deploy the static frontend to Vercel. No inference backend yet; show that state clearly.
-3. Redeem/check partner credits and deploy the Python transcription backend on Render with sufficient measured resources. Wire its public HTTPS address into the frontend once. Visitors never configure localhost.
-4. Test a real Amharic recording and a real English recording end to end: record/upload, transcribe, review, save, reopen, download and play the original voice from the keepsake.
-5. Validate Amharic/English translation separately, including names, dates, uncertainty, and cultural expressions. The current Ollama integration needs a running reachable model service; do not confuse a deployed speech backend with working translation.
-6. Publish a working demo, public source, and the English DEV submission. Explain the personal motivation, demonstrated bilingual results, architecture, open-model licenses, and limitations. Enter Render's category only if actually used.
+1. GitHub source and Vercel-ready frontend: prepared.
+2. Storybook editor: implemented, including cover, editable bilingual pages, page pictures/captions, local persistence, portable HTML with original audio, and browser Print / Save as PDF. This is deterministic layout, not AI story rewriting or illustration generation.
+3. Verify eligibility for free model hosting (for example Hugging Face ZeroGPU); no paid accounts or services. Visitors should not configure localhost. No free hosted backend is confirmed yet.
+4. Connect and test original Amharic/English transcription; verify translation separately. Existing FastAPI and Ollama integrations need an actual running service.
+5. Connect a genuinely free open-weight image generation route. Test scene relevance and consistency; let the family review each picture. Label generated images as visual interpretations. Keep uploads as an alternative.
+6. Validate the complete recorded-memory-to-picture-book experience with real sample recordings, then record a demo and publish the English DEV submission. Clearly disclose any unavailable features. Enter partner categories only when actually used.
 
 ## Current implementation
 
 - Browser recording/upload and local IndexedDB story storage.
 - Written memories, original transcript/translation editing, search/language filters, offline HTML keepsake export.
+- Storybook editor: editable cover, dedication, original/translation pages, page images and captions, local saving, downloadable digital book, browser PDF printing.
 - Python FastAPI transcription service, not hosted yet.
 - Amharic: b1n1yam/shook-tiny-amharic-600hr; English: openai/whisper-small.en.
 - Translation: configurable Ollama model, not hosted/quality-validated.

@@ -2,6 +2,16 @@
 
 A bilingual family storybook for older people to pass memories to their families in Amharic and English. Record or upload audio, review the original transcript, translate it, and export a self-contained keepsake with its audio embedded.
 
+## Create a picture storybook (no paid service)
+
+Open a saved story or the written example and choose **Create my storybook**. The app splits the original text and optional translation into editable pages without rewriting the transcript. Edit the cover, add a dedication, then select each page to add a photo/illustration and caption. Images are resized locally; no image-generation API is called. Add at least one picture before exporting the book. You can save an unfinished draft before adding pictures.
+
+**Save storybook** stores the book with its memory in this browser. **Download digital book** creates a portable HTML book with pictures and any original recording embedded. **Print / Save PDF** opens a printable A5 book; use its print button and choose Save as PDF. PDFs include text and pictures, not playable audio. Long manually edited pages may continue onto another printed page; use Add a page to distribute text.
+
+Transcription, translation, and automatic AI illustrations are not connected to a hosted service. The project has a strict $0 budget; Render is not connected. See PROJECT_PLAN.md for the free-hosting work still needed.
+
+Run the text-preservation/export checks with `node --test tests/book-template.test.mjs`.
+
 ## Deploy the frontend to Vercel first
 
 This repository is ready for a static Vercel deployment. The Python/model backend is intentionally separate and is **not connected yet**.
@@ -11,9 +21,9 @@ This repository is ready for a static Vercel deployment. The Python/model backen
 3. Deploy. No environment variables or paid model API keys are needed for this frontend stage.
 4. Verify recording/upload, written memories, local saving, search, and keepsake downloads. Transcription/translation will show an honest unavailable message until the backend is connected.
 
-### Connect Render later
+### Connect a free model backend later
 
-1. Deploy the included Python backend on a model-capable Render service. The root Dockerfile is for this backend, not Vercel. Confirm resources and credit terms before selecting paid compute.
+1. Deploy the included Python backend on a model-capable Render service. The root Dockerfile is for this backend, not Vercel. Do not enable paid compute under the current $0 budget. Confirm a genuinely free eligible service before deployment. Render is only an optional future hosting choice, not a prerequisite for the storybook editor.
 2. Set `ALLOWED_ORIGINS` to the final Vercel production origin; avoid wildcard CORS. Decide how public API requests will be authenticated/rate-limited before opening inference to visitors. Never embed a shared secret in public frontend files.
 3. Set the public `backendUrl` value in `dist/config.js` to the HTTPS backend origin and redeploy Vercel. Existing saved Connection settings override this default; clear/update them when testing an older installation.
 4. Validate real Amharic and English recordings through the deployed frontend. Translation separately needs Ollama or a separately integrated open-model inference service; deploying the speech backend alone does not start Ollama.
