@@ -8,25 +8,28 @@ Open a saved story or the written example and choose **Create my storybook**. Th
 
 **Save storybook** stores the book with its memory in this browser. **Download digital book** creates a portable HTML book with pictures and any original recording embedded. **Print / Save PDF** opens a printable A5 book; use its print button and choose Save as PDF. PDFs include text and pictures, not playable audio. Long manually edited pages may continue onto another printed page; use Add a page to distribute text.
 
-Transcription, translation, and automatic AI illustrations are not connected to a hosted service. The project has a strict $0 budget; Render is not connected. See PROJECT_PLAN.md for the free-hosting work still needed.
+The speech service is running in the free Hugging Face ZeroGPU Space below. Automatic translation and AI illustrations remain unconnected. The project has a strict $0 budget; Render is not connected.
 
-Run the text-preservation/export checks with `node --test tests/book-template.test.mjs`.
+Run the export and speech-client checks with `node --test tests/*.test.mjs`.
 
 ## Deploy the frontend to Vercel first
 
-This repository is ready for a static Vercel deployment. The Python/model backend is intentionally separate and is **not connected yet**.
+This repository is ready for a static Vercel deployment. Model inference is hosted separately on the free Hugging Face Space.
 
 1. Import this GitHub repository in Vercel.
 2. Keep the root directory at the repository root. Framework preset: **Other**. The included `vercel.json` sets the output directory to `dist` and skips installation/builds.
 3. Deploy. No environment variables or paid model API keys are needed for this frontend stage.
-4. Verify recording/upload, written memories, local saving, search, and keepsake downloads. Transcription/translation will show an honest unavailable message until the backend is connected.
+4. Verify recording/upload, written memories, local saving, search, and keepsake downloads. Transcription uses the configured Space; automatic translation remains unavailable in hosted mode.
 
-### Connect a free model backend later
+### Free hosted speech
 
-1. Deploy the included Python backend on a model-capable Render service. The root Dockerfile is for this backend, not Vercel. Do not enable paid compute under the current $0 budget. Confirm a genuinely free eligible service before deployment. Render is only an optional future hosting choice, not a prerequisite for the storybook editor.
-2. Set `ALLOWED_ORIGINS` to the final Vercel production origin; avoid wildcard CORS. Decide how public API requests will be authenticated/rate-limited before opening inference to visitors. Never embed a shared secret in public frontend files.
-3. Set the public `backendUrl` value in `dist/config.js` to the HTTPS backend origin and redeploy Vercel. Existing saved Connection settings override this default; clear/update them when testing an older installation.
-4. Validate real Amharic and English recordings through the deployed frontend. Translation separately needs Ollama or a separately integrated open-model inference service; deploying the speech backend alone does not start Ollama.
+Space: https://huggingface.co/spaces/ladybug11/stories-we-keep-speech
+
+The `huggingface/` directory contains the Space's `app.py`, `requirements.txt` and `packages.txt`. It uses Gradio on free ZeroGPU, with English and Amharic models loaded at startup. No paid API, Render server, billing credentials, or shared frontend secret is used. Keep the Space on ZeroGPU; do not upgrade hardware under the $0 budget.
+
+The frontend's `speechSpaceUrl` in `dist/config.js` selects this speech service. `dist/speech-space.mjs` uploads audio, submits the named Gradio endpoint, and reads its queued SSE result. Requests go directly from the visitor's browser. Free unauthenticated GPU quotas and queues apply; this is a limited demo, not unlimited production hosting. No automatic paid fallback is configured. Validation: the actual client module sent a 6.28-second synthetic English clip and received the expected transcript; both models loaded. Real Amharic speech accuracy and longer recordings still require evaluation. A typed custom backend address overrides hosted speech for self-hosters.
+
+Automatic translation is visibly unavailable in hosted mode. Families can write/review a translation themselves. The separate local Python/Ollama backend below remains available for developers.
 
 Visitors should not install Python, Ollama, or configure localhost. Local execution below is an optional developer/self-hosted mode.
 
@@ -61,7 +64,7 @@ The web interface records audio, accepts uploads, lets you write/edit stories an
 
 Stories are stored in this browser's IndexedDB, not synced or backed up to a cloud database. Clearing browser data removes them. **Download keepsake** saves a standalone HTML file containing the original audio and both texts. Keep that file as a backup; it can be opened offline.
 
-When you click **Transcribe**, the recording is sent to your configured backend. When you click **Translate**, its text is sent to that backend and then to its configured Ollama. The Python backend deletes temporary uploaded files, does not persist audio/transcripts, and does not log successful request bodies. Initial model downloads require internet; once cached, inference can run locally. External fonts are optional presentation assets and fall back to system fonts offline.
+When you click **Transcribe** in hosted mode, the recording is uploaded to the Hugging Face Space. The Space removes processed uploads in a finally block and cleans expired temporary cache files; its UI/API output may remain in the current session. Do not treat a public demo as a private archival service. With a custom backend, the recording goes to that backend instead. When you click **Translate**, its text is sent to that backend and then to its configured Ollama. The Python backend deletes temporary uploaded files, does not persist audio/transcripts, and does not log successful request bodies. Initial model downloads require internet; once cached, inference can run locally. External fonts are optional presentation assets and fall back to system fonts offline.
 
 The example is a written fictional memory with an illustrative Amharic translation. Synthetic demo audio was removed from the interface. Real recordings are kept unmodified; Whisper transcribes audio and does not generate a voice.
 

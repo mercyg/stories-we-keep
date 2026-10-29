@@ -22,7 +22,7 @@ Main output: a picture storybook made from a family's memory. Every story page s
 
 1. GitHub source and Vercel-ready frontend: prepared.
 2. Storybook editor: implemented, including cover, editable bilingual pages, page pictures/captions, local persistence, portable HTML with original audio, and browser Print / Save as PDF. This is deterministic layout, not AI story rewriting or illustration generation.
-3. Verify eligibility for free model hosting (for example Hugging Face ZeroGPU); no paid accounts or services. Visitors should not configure localhost. No free hosted backend is confirmed yet.
+3. Free hosting: Hugging Face ZeroGPU is available and selected; no paid accounts or services. Visitors should not configure localhost. The user created ladybug11/stories-we-keep-speech with free ZeroGPU. The Gradio service is running. A 6.28-second synthetic English clip passed through the actual direct-browser client module and returned the expected words. Both speech models loaded; real Amharic audio accuracy remains to be tested.
 4. Connect and test original Amharic/English transcription; verify translation separately. Existing FastAPI and Ollama integrations need an actual running service.
 5. Connect a genuinely free open-weight image generation route. Test scene relevance and consistency; let the family review each picture. Label generated images as visual interpretations. Keep uploads as an alternative.
 6. Validate the complete recorded-memory-to-picture-book experience with real sample recordings, then record a demo and publish the English DEV submission. Clearly disclose any unavailable features. Enter partner categories only when actually used.
@@ -32,7 +32,7 @@ Main output: a picture storybook made from a family's memory. Every story page s
 - Browser recording/upload and local IndexedDB story storage.
 - Written memories, original transcript/translation editing, search/language filters, offline HTML keepsake export.
 - Storybook editor: editable cover, dedication, original/translation pages, page images and captions, local saving, downloadable digital book, browser PDF printing.
-- Python FastAPI transcription service, not hosted yet.
+- Free ZeroGPU Gradio transcription service in huggingface/; original FastAPI backend retained for optional self-hosting.
 - Amharic: b1n1yam/shook-tiny-amharic-600hr; English: openai/whisper-small.en.
 - Translation: configurable Ollama model, not hosted/quality-validated.
 - Example is fictional written text with an illustrative translation. Synthetic sample audio is removed from the interface.
