@@ -20,7 +20,9 @@ Pictures currently come from your own uploads; the app does not generate them au
 
 ## Create a picture storybook (no paid service)
 
-Open a saved story or the written example and choose **Create my storybook**. The app splits the original text and optional translation into editable pages without rewriting the transcript. Edit the cover, add a dedication, then select each page to add a photo/illustration and caption. Images are resized locally; no image-generation API is called. Add at least one picture before exporting the book. You can save an unfinished draft before adding pictures.
+Open a saved story or the written example and choose **Create my storybook**. The app splits the original text and optional translation into editable pages without rewriting the transcript. The original question appears before the story and before its translation so readers understand the answer. Prompt-based memories fill it in automatically. Use **Question that started this story** to edit it or add context for older memories; it is included in the digital book and PDF without rewriting the transcript or automatically translating the question. Older saved books keep their edited pages and pictures when this field is added.
+
+Edit the cover, add a dedication, then select each page to add a photo/illustration and caption. Images are resized locally; no image-generation API is called. Add at least one picture before exporting the book. You can save an unfinished draft before adding pictures.
 
 **Save storybook** stores the book with its memory in this browser. **Download digital book** creates a portable HTML book with pictures and any original recording embedded. **Print / Save PDF** opens a printable A5 book; use its print button and choose Save as PDF. PDFs include text and pictures, not playable audio. Long manually edited pages may continue onto another printed page; use Add a page to distribute text.
 
