@@ -1,0 +1,14 @@
+:root {
+ color-scheme:light;
+ --space-3xs:2px;--space-2xs:4px;--space-xs:8px;--space-sm:12px;--space-md:16px;--space-lg:24px;--space-xl:40px;--space-2xl:64px;--space-3xl:96px;--space-4xl:144px;
+ --text-xs:.75rem;--text-sm:.875rem;--text-md:1rem;--text-lg:1.2rem;--text-title:1.3rem;--text-display:3rem;--text-section:2rem;--text-lead:1.2rem;
+ --color-paper:#fff7ee;--color-paper-2:#ffecdf;--color-paper-3:#f3dfd2;--color-card:#fffdfa;
+ --color-ink:#49333e;--color-ink-2:#624b55;--color-muted:#775c65;--color-rule:#dec4b8;--color-rule-2:#9f7c79;
+ --color-accent:#9f365d;--color-accent-deep:#812647;--color-accent-ink:#fff9f4;--color-focus:#942e59;
+ --color-peach:#f9d3ba;--color-butter:#ffedb8;--color-rose:#f7e1e6;--color-lilac:#ede3f1;
+ --color-error:#a42542;--color-success:#405c74;--color-backdrop:#49333e66;--color-clear:transparent;
+ --font-display:'Bricolage Grotesque','Noto Sans Ethiopic',sans-serif;--font-body:'DM Sans','Noto Sans Ethiopic',sans-serif;
+ --display-weight:700;--tracking-display:-.04em;--radius-card:24px;--radius-input:12px;--radius-pill:999px;
+ --container:1280px;--gutter:40px;--gap-columns:32px;--space-control:52px;
+ --z-base:1;--z-raised:10;--z-modal:400;--z-toast:500;--dur-micro:120ms;--dur-short:220ms;--ease-out:cubic-bezier(.16,1,.3,1);
+}

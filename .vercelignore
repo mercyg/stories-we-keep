@@ -1,0 +1,7 @@
+backend/
+.hallmark/
+.openai/
+.venv/
+__pycache__/
+.env
+.env.*
