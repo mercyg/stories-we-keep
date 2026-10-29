@@ -25,3 +25,5 @@ dialog{border:0;border-radius:var(--radius-card);padding:var(--space-xl);backgro
 .privacy-check{display:flex!important;align-items:flex-start;gap:12px;font-size:14px;margin-block:20px}.privacy-check input{width:20px;min-height:20px;flex-shrink:0;margin-top:2px}.nav-row{flex-wrap:wrap}#privacyForm>label:not(.privacy-check){display:grid;gap:8px;margin-block:16px}
 
 .privacy-panel{border:1px solid var(--color-rule-2);border-radius:var(--radius-card);padding:var(--space-lg);margin-bottom:var(--space-xl);background:var(--color-card)}.privacy-panel h2{font-size:24px;margin-bottom:12px}.privacy-panel p{max-width:65ch;line-height:1.7}.privacy-panel button{margin-top:12px}#securityDialog h3{font-size:20px;margin-top:24px}#securityDialog p{line-height:1.75}
+
+.privacy-check[hidden]{display:none!important}
