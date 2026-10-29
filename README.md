@@ -1,6 +1,22 @@
 # Stories We Keep
 
-A bilingual family storybook for older people to pass memories to their families in Amharic and English. Record or upload audio, review the original transcript, translate it, and export a self-contained keepsake with its audio embedded.
+A bilingual family storybook for older people to pass memories to their families in Amharic and English. Record or upload audio, transcribe it with open speech models, review the words, and create a picture storybook with family photos. Add an optional family-reviewed translation yourself. Automatic translation and AI-generated illustrations are not connected in the hosted app.
+
+## Try the app
+
+[Open Stories We Keep](https://stories-we-keep.vercel.app/). Record or upload a memory, select its original language, and choose **Transcribe recording**. Review the words, give the memory a title, and choose **Create my storybook**. Visitors do not need a local server or API key.
+
+## Downloads: pictures, text, and voice
+
+| Download | Story text | Pictures and captions | Original voice |
+| --- | --- | --- | --- |
+| **Download digital book** (HTML) | Yes, including any translation you add | Yes, the pictures you upload to the book | Embedded and playable offline, if a recording is attached |
+| **Print / Save PDF** | Yes, including any translation you add | Yes, the pictures you upload to the book | No playable audio |
+| **Download keepsake** (HTML) | Yes, including any translation you add | No storybook page pictures | Embedded and playable offline, if a recording is attached |
+
+There is no separate audio-only download button yet. Download a digital book or keepsake to preserve the original recording alongside the words. A written-only memory has no audio to include. Keep the downloaded HTML file intact to retain its embedded voice and pictures.
+
+Pictures currently come from your own uploads; the app does not generate them automatically. Saving a PDF uses your browser’s print dialog: choose **Save as PDF** as the destination.
 
 ## Create a picture storybook (no paid service)
 
@@ -27,7 +43,7 @@ Space: https://huggingface.co/spaces/ladybug11/stories-we-keep-speech
 
 The `huggingface/` directory contains the Space's `app.py`, `requirements.txt` and `packages.txt`. It uses Gradio on free ZeroGPU, with English and Amharic models loaded at startup. No paid API, Render server, billing credentials, or shared frontend secret is used. Keep the Space on ZeroGPU; do not upgrade hardware under the $0 budget.
 
-The frontend's `speechSpaceUrl` in `dist/config.js` selects this speech service. `dist/speech-space.mjs` uploads audio, submits the named Gradio endpoint, and reads its queued SSE result. Requests go directly from the visitor's browser. Free unauthenticated GPU quotas and queues apply; this is a limited demo, not unlimited production hosting. No automatic paid fallback is configured. Validation: the actual client module sent a 6.28-second synthetic English clip and received the expected transcript; both models loaded. Real Amharic speech accuracy and longer recordings still require evaluation. A typed custom backend address overrides hosted speech for self-hosters.
+The frontend's `speechSpaceUrl` in `dist/config.js` selects this speech service. `dist/speech-space.mjs` uploads audio, submits the named Gradio endpoint, and reads its queued SSE result. Requests go directly from the visitor's browser. Free unauthenticated GPU quotas and queues apply; this is a limited demo, not unlimited production hosting. No automatic paid fallback is configured. Validation: the actual client module transcribed a 6.28-second synthetic English clip in both WAV and browser-format WebM; both models loaded. The hosted upload filter explicitly accepts WebM, M4A/MP4, WAV, MP3, OGG, FLAC, AAC, and Opus, with ffmpeg validating the audio. Real Amharic speech accuracy and longer recordings still require evaluation. A typed custom backend address overrides hosted speech for self-hosters.
 
 Automatic translation is visibly unavailable in hosted mode. Families can write/review a translation themselves. The separate local Python/Ollama backend below remains available for developers.
 
@@ -50,7 +66,7 @@ To run with different settings, export environment variables before starting. `.
 
 ## Open models
 
-- Amharic transcription: [`b1n1yam/shook-tiny-amharic-600hr`](https://huggingface.co/b1n1yam/shook-tiny-amharic-600hr), an Amharic fine-tune of Whisper Tiny, Apache-2.0. Downloads on first transcription, then runs locally on CPU. Override `AMHARIC_MODEL` to compare compatible Whisper checkpoints.
+- Amharic transcription: [`b1n1yam/shook-tiny-amharic-600hr`](https://huggingface.co/b1n1yam/shook-tiny-amharic-600hr), an Amharic fine-tune of Whisper Tiny, Apache-2.0. In the hosted Space, downloads at startup and runs on ZeroGPU. The optional local FastAPI backend downloads on first transcription and runs on CPU. Override `AMHARIC_MODEL` to compare compatible Whisper checkpoints.
 - English transcription: [`openai/whisper-small.en`](https://huggingface.co/openai/whisper-small.en), Apache-2.0 on the Hugging Face checkpoint. The larger default prioritizes transcription quality over the earlier Tiny English configuration and needs more memory/CPU time. Override `ENGLISH_MODEL` as needed; existing environment overrides still take precedence.
 - Translation: your selected downloadable Ollama language model. Its own license applies; Ollama is the runner. We have not established quality on real Amharic family recordings for this particular pipeline.
 
@@ -68,7 +84,7 @@ When you click **Transcribe** in hosted mode, the recording is uploaded to the H
 
 The example is a written fictional memory with an illustrative Amharic translation. Synthetic demo audio was removed from the interface. Real recordings are kept unmodified; Whisper transcribes audio and does not generate a voice.
 
-## Hosting
+## Optional self-hosting
 
 A static host such as Vercel hosts the web interface only; Cloudflare Workers cannot run this Python/PyTorch model service. The included Dockerfile runs the full app on a suitable Python/container host. For deployment:
 
