@@ -1,3 +1,4 @@
+import {bytesToBase64,transcriptRecipient} from './transcript-crypto.mjs';
 // Small client for Gradio's public upload + named-call SSE API. No secret keys.
 export function readEvent(block) {
   const lines=block.split(/\r?\n/);
@@ -18,17 +19,16 @@ export async function spaceTranscribe(base, audio, language, progress=()=>{}) {
     return response;
   }
   try {
-    progress('Uploading your recording to the free speech service…');
-    const form=new FormData();
-    const name='memory.'+(audio.type.includes('mp4')?'m4a':audio.type.includes('wav')?'wav':'webm');
-    form.append('files',audio,name);
-    const paths=await (await request('/gradio_api/upload',{method:'POST',body:form})).json();
-    if(!Array.isArray(paths)||typeof paths[0]!=='string')throw new Error('The recording could not be uploaded. Please try again.');
-    const job=await (await request('/gradio_api/call/transcribe',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({data:[{path:paths[0],orig_name:name,meta:{_type:'gradio.FileData'}},language]})})).json();
+    if(!audio.size||audio.size>30*1024*1024)throw new Error('Use a nonempty recording smaller than 30 MB.');
+    progress('Preparing a protected transcript response…');
+    const recipient=await transcriptRecipient();
+    const encoded=bytesToBase64(new Uint8Array(await audio.arrayBuffer()));
+    progress('Sending your recording for in-memory transcription…');
+    const job=await (await request('/gradio_api/call/transcribe_private',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({data:[encoded,language,recipient.publicKey]})})).json();
     if(typeof job.event_id!=='string')throw new Error('The speech service could not start transcription. Please try again.');
     progress('Waiting for the free GPU, then transcribing… Please keep this page open.');
-    const response=await request('/gradio_api/call/transcribe/'+encodeURIComponent(job.event_id));
+    const response=await request('/gradio_api/call/transcribe_private/'+encodeURIComponent(job.event_id));
     reader=response.body.getReader();
     const decoder=new TextDecoder();let pending='';
     while(true) {
@@ -42,7 +42,7 @@ export async function spaceTranscribe(base, audio, language, progress=()=>{}) {
           throw new Error(typeof detail==='string'?detail:detail?.message||'The free speech service could not finish. Its GPU queue or quota may be full. Your recording is still here.');
         }
         if(event==='complete') {
-          const result=JSON.parse(data)?.[0];
+          const result=await recipient.decrypt(JSON.parse(data)?.[0]);
           if(typeof result?.text!=='string'||!result.text.trim())throw new Error('No speech was recognized. Try a clearer recording.');
           return result;
         }

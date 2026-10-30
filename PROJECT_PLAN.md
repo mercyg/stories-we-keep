@@ -44,3 +44,7 @@ No AI video, voice cloning, or fabricated family memories. No account system or 
 ## Privacy update
 
 Password-protected local vault and processing consent implemented. Existing plaintext stories migrate atomically only after the user sets a password. HTML/PDF downloads remain unencrypted and are labeled accordingly. Public free speech processing is not end-to-end encrypted; no claim of provider-wide deletion or independent security audit. See README privacy section for technical boundaries and tests.
+
+## Hosted speech transport hardening
+
+Replaced Gradio File uploads with an in-memory base64 text endpoint. Disabled file upload/download/stream/proxy routes; encrypted queued transcript results for the requesting browser using per-request public-key wrapping. Browser local-vault password is unrelated and is never sent. Model/platform access during processing remains a documented boundary. Live route-denial and successful encrypted WebM transcription verified. The copied live response contains ciphertext, another recipient key cannot decrypt it, and queued responses use no-store headers.

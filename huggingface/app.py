@@ -3,7 +3,8 @@ import os
 os.environ['GRADIO_ANALYTICS_ENABLED'] = 'False'
 import spaces  # Must be imported before torch for ZeroGPU.
 import subprocess
-from pathlib import Path
+from starlette.middleware import Middleware
+from private_transport import decode_recording, browser_public_key, encrypt_result, PrivateFilesMiddleware
 import gradio as gr
 import numpy as np
 import torch
@@ -14,15 +15,11 @@ MODELS = {'am': 'b1n1yam/shook-tiny-amharic-600hr', 'en': 'openai/whisper-small.
 PIPES = {lang: pipeline('automatic-speech-recognition', model=model,
     device='cuda:0', dtype=torch.float16) for lang, model in MODELS.items()}
 
-def decode(path):
-    if not path or not Path(path).is_file():
-        raise gr.Error('Please record or upload an audio file.')
-    if Path(path).stat().st_size > 30 * 1024 * 1024:
-        raise gr.Error('Please use a recording smaller than 30 MB.')
+def decode(data):
     try:
-        result = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', path,
+        result = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', 'pipe:0',
             '-t', '301', '-f', 'f32le', '-ar', '16000', '-ac', '1', 'pipe:1'],
-            capture_output=True, timeout=35, check=False)
+            input=data, capture_output=True, timeout=35, check=False)
     except (subprocess.TimeoutExpired, FileNotFoundError):
         raise gr.Error('The recording could not be decoded. Try WAV, MP3, M4A or WebM.')
     if result.returncode or not result.stdout:
@@ -43,33 +40,41 @@ def recognize(wave, language):
             chunk_length_s=25, stride_length_s=4, generate_kwargs=options)
     return str(result.get('text', '')).strip()
 
-def transcribe(audio, language):
+def transcribe_private(payload, language, recipient):
     if language not in MODELS:
         raise gr.Error('Choose English or Amharic.')
     try:
-        wave, seconds = decode(audio)
+        key = browser_public_key(recipient)
+        data = decode_recording(payload)
+    except ValueError as error:
+        raise gr.Error(str(error)) from None
+    try:
+        wave, seconds = decode(data)
         text = recognize(wave, language)
         if not text:
             raise gr.Error('No speech was recognized. Try a clearer recording.')
-        return {'text': text, 'language': language, 'duration': round(seconds, 2),
-                'model': MODELS[language], 'review_required': True}
+        return encrypt_result({'text': text, 'language': language, 'duration': round(seconds, 2),
+                'model': MODELS[language], 'review_required': True}, key)
     finally:
-        # Gradio owns this uploaded temporary file. Remove it after processing.
-        if audio:
-            Path(audio).unlink(missing_ok=True)
+        # No audio file is created. The framework may retain request buffers in memory;
+        # these references are dropped after processing, without claiming secure erasure.
+        del payload, data
 
-with gr.Blocks(title='Stories We Keep — Speech', delete_cache=(60, 60)) as demo:
+with gr.Blocks(title='Stories We Keep — Private Speech Transport', delete_cache=(60, 60)) as demo:
     gr.Markdown('# Stories We Keep\nEnglish and Amharic transcription for family memories.\n\n'
-        'Audio is sent to this Hugging Face Space for processing. Uploaded audio is deleted '
-        'after processing; review the transcript before keeping it. Free GPU queues and quotas apply. '
-        'Translation and image generation are not provided by this service.')
-    audio = gr.File(label='Recording (up to 5 minutes / 30 MB)', type='filepath', file_types=['.wav', '.mp3', '.m4a', '.mp4', '.webm', '.ogg', '.flac', '.aac', '.opus'])
-    language = gr.Dropdown(choices=[('አማርኛ', 'am'), ('English', 'en')], value='am', label='Original language')
-    submit = gr.Button('Transcribe recording', variant='primary')
-    output = gr.JSON(label='Transcript — please review')
-    submit.click(transcribe, [audio, language], output, api_name='transcribe', concurrency_limit=1)
+        'Use [Stories We Keep](https://stories-we-keep.vercel.app/) to record a story. '
+        'This API processes audio in memory, disables file uploads/downloads, and encrypts '
+        'transcript results for the requesting browser. The model still reads the audio on '
+        'Hugging Face infrastructure; this is not end-to-end private processing. Free GPU limits apply.')
+    payload = gr.Textbox(visible=False, label='Audio bytes (base64)')
+    language = gr.Textbox(visible=False, label='Original language')
+    recipient = gr.Textbox(visible=False, label='One-request browser public key')
+    output = gr.JSON(visible=False, label='Encrypted transcript')
+    submit = gr.Button(visible=False)
+    submit.click(transcribe_private, inputs=[payload, language, recipient], outputs=output, api_name='transcribe_private', concurrency_limit=1)
     gr.Markdown('Open models: [Addis AI Shook Tiny](https://huggingface.co/b1n1yam/shook-tiny-amharic-600hr) '
         'and [Whisper Small English](https://huggingface.co/openai/whisper-small.en). '
         '[Source](https://github.com/mercyg/stories-we-keep).')
 
-demo.queue(max_size=8).launch(max_file_size='30mb', show_error=True)
+demo.queue(max_size=4).launch(max_file_size='1kb', show_error=False,
+    app_kwargs={'middleware': [Middleware(PrivateFilesMiddleware)]})
