@@ -6,6 +6,8 @@ A bilingual family storybook for older people to pass memories to their families
 
 [Open Stories We Keep](https://stories-we-keep.vercel.app/). Record or upload a memory, select its original language, and choose **Transcribe recording**. Review the words, give the memory a title, and choose **Create my storybook**. Visitors do not need a local server or API key.
 
+The homepage previews a finished storybook and explains Record → Review → Add photos → Keep it your way. **See an example book** opens the fictional blue-suitcase story with an original sample illustration in the actual book editor. Visitors can explore its pages and replace the illustration with their own photos. Saving on this device does not require a download.
+
 ## Bilingual story questions
 
 Questions start in English. Use **Question language → አማርኛ** on the home question card or Story prompts page to switch all six prompts to Amharic. Your choice is remembered in this browser. These are fixed translations and do not need a model or API. Choosing **Use this question** saves the displayed question and its language with the memory, so the selected wording carries into the storybook and PDF. Question language and the recording’s original language are separate choices.
