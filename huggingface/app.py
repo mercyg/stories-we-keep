@@ -9,11 +9,13 @@ import gradio as gr
 import numpy as np
 import torch
 from transformers import pipeline
+from cpu_fallback import recognize_with_fallback
 
 MODELS = {'am': 'b1n1yam/shook-tiny-amharic-600hr', 'en': 'openai/whisper-small.en'}
 # Place models on CUDA at startup as required by ZeroGPU's CUDA emulation.
 PIPES = {lang: pipeline('automatic-speech-recognition', model=model,
     device='cuda:0', dtype=torch.float16) for lang, model in MODELS.items()}
+CPU_PIPES = {}
 
 def decode(data):
     try:
@@ -40,6 +42,20 @@ def recognize(wave, language):
             chunk_length_s=25, stride_length_s=4, generate_kwargs=options)
     return str(result.get('text', '')).strip()
 
+def recognize_cpu(wave, language):
+    # A separate CPU model preserves ZeroGPU's packed CUDA tensors.
+    # Reuse the downloaded weights and cache only one CPU model to bound RAM.
+    if language not in CPU_PIPES:
+        CPU_PIPES.clear()
+        torch.set_num_threads(2)
+        CPU_PIPES[language] = pipeline('automatic-speech-recognition',
+            model=MODELS[language], device=-1, dtype=torch.float32)
+    options = {'language': 'amharic', 'task': 'transcribe'} if language == 'am' else {}
+    with torch.inference_mode():
+        result = CPU_PIPES[language]({'raw': wave, 'sampling_rate': 16000},
+            chunk_length_s=25, stride_length_s=4, generate_kwargs=options)
+    return str(result.get('text', '')).strip()
+
 def transcribe_private(payload, language, recipient):
     if language not in MODELS:
         raise gr.Error('Choose English or Amharic.')
@@ -50,11 +66,14 @@ def transcribe_private(payload, language, recipient):
         raise gr.Error(str(error)) from None
     try:
         wave, seconds = decode(data)
-        text = recognize(wave, language)
+        try:
+            text, compute = recognize_with_fallback(recognize, recognize_cpu, wave, language, seconds)
+        except ValueError as error:
+            raise gr.Error(str(error)) from None
         if not text:
             raise gr.Error('No speech was recognized. Try a clearer recording.')
         return encrypt_result({'text': text, 'language': language, 'duration': round(seconds, 2),
-                'model': MODELS[language], 'review_required': True}, key)
+                'model': MODELS[language], 'compute': compute, 'review_required': True}, key)
     finally:
         # No audio file is created. The framework may retain request buffers in memory;
         # these references are dropped after processing, without claiming secure erasure.
@@ -64,7 +83,7 @@ with gr.Blocks(title='Stories We Keep — Private Speech Transport', delete_cach
     gr.Markdown('# Stories We Keep\nEnglish and Amharic transcription for family memories.\n\n'
         'Use [Stories We Keep](https://stories-we-keep.vercel.app/) to record a story. '
         'This API processes audio in memory, disables file uploads/downloads, and encrypts '
-        'transcript results for the requesting browser. The model still reads the audio on '
+        'transcript results for the requesting browser. If GPU quota is exhausted, clips up to 60 seconds use free CPU transcription. The model still reads the audio on '
         'Hugging Face infrastructure; this is not end-to-end private processing. Free GPU limits apply.')
     payload = gr.Textbox(visible=False, label='Audio bytes (base64)')
     language = gr.Textbox(visible=False, label='Original language')

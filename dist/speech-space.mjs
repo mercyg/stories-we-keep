@@ -1,5 +1,5 @@
 import {bytesToBase64,transcriptRecipient} from './transcript-crypto.mjs';
-// Small client for Gradio's public upload + named-call SSE API. No secret keys.
+// Small client for Gradio's named-call SSE API. Audio stays out of file routes.
 export function readEvent(block) {
   const lines=block.split(/\r?\n/);
   return {event:lines.find(l=>l.startsWith('event:'))?.slice(6).trim(),
@@ -39,7 +39,8 @@ export async function spaceTranscribe(base, audio, language, progress=()=>{}) {
         const {event,data}=readEvent(pending.slice(0,end));pending=pending.slice(end+2);
         if(event==='error') {
           let detail;try{detail=JSON.parse(data)}catch{}
-          throw new Error(typeof detail==='string'?detail:detail?.message||'The free speech service could not finish. Its GPU queue or quota may be full. Your recording is still here.');
+          const reason=typeof detail==='string'?detail:detail?.error||detail?.message;
+          throw new Error(typeof reason==='string'&&reason.trim()?reason:'The speech service could not finish and did not provide a reason. Your recording is still here; please try again.');
         }
         if(event==='complete') {
           const result=await recipient.decrypt(JSON.parse(data)?.[0]);

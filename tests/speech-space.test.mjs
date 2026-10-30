@@ -46,3 +46,17 @@ test('GPU errors are shown without creating an empty transcript',async()=>{
  try{await assert.rejects(spaceTranscribe('https://example.test',new Blob(['audio']),'en'),/GPU quota exhausted/)}
  finally{globalThis.fetch=original}
 });
+
+test('structured Gradio errors preserve the actual cause instead of guessing GPU quota',async()=>{
+ const original=globalThis.fetch;
+ try {
+  for(const reason of ['This file could not be decoded as audio.','You have exceeded your GPU quota.']){
+   let calls=0;
+   globalThis.fetch=async()=>++calls===1?Response.json({event_id:'job'}):new Response('event: error\ndata: '+JSON.stringify({error:reason,duration:10,visible:true,title:'Error'})+'\n\n');
+   await assert.rejects(spaceTranscribe('https://example.test',new Blob(['audio']),'en'),{message:reason});
+  }
+  let calls=0;
+  globalThis.fetch=async()=>++calls===1?Response.json({event_id:'job'}):new Response('event: error\ndata: null\n\n');
+  await assert.rejects(spaceTranscribe('https://example.test',new Blob(['audio']),'en'),/did not provide a reason/);
+ }finally{globalThis.fetch=original}
+});
