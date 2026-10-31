@@ -86,6 +86,12 @@ Audio processing does not call Addis AI's hosted API. Voice Lab and these downlo
 
 The web interface records audio, accepts uploads, lets you write/edit stories and translations, saves stories with audio to password-protected IndexedDB, searches/filters the storybook, opens the written fictional example, and exports an offline HTML keepsake with embedded audio. AI transcription/translation require a connected backend. There are no fake AI responses or automatic fabricated transcripts.
 
+## Visitor analytics
+
+The production site has a dedicated GA4 property, **Stories We Keep**, measurement ID `G-VMCQ1FQRMY`. Analytics loads only after explicit opt-in. No thanks leaves Google Analytics unloaded; the footer’s Analytics choices button allows withdrawal, removes GA cookies, and reloads to remove the tag. Do Not Track / Global Privacy Control disable analytics. Counts therefore represent consenting, unblocked visitors, not every visit, and are not retroactive.
+
+Enhanced measurement is disabled on the web stream. The code sends one page view per consenting page load with a constant title/address and an origin-only referrer, with no query strings or hashes. No story content, recording data, photos, passwords, search terms, or form values are added to events. Google receives normal connection/device information. Ads storage, ad user data, personalization and Google signals are disabled. Keep enhanced measurement off when changing the property. This adds a third-party script for consenting visitors; it is not a security sandbox. The app includes an analytics notice and preference controls. The public measurement ID is not a secret.
+
 ## Privacy and security
 
 A visible **Privacy & security** section explains these protections and limits in the app.
